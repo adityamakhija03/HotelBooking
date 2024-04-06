@@ -4,11 +4,15 @@ const SellerSchema = new Schema ({
     name: {
         type: String,
         required: true,
+        trim:true,
+        index:true
       },
       email: {
         type: String,
         required: true,
         unique: true,
+        trim:true,
+        index:true
       },
       products: [
         {
@@ -31,6 +35,7 @@ const SellerSchema = new Schema ({
           },
           message: 'Please provide a valid 10-digit phone number.',
         },
+        required:true
       },
       website: {
         String
