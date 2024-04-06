@@ -121,7 +121,8 @@ const productSchema = new Schema({
         }
     },
     category: {
-        type: String,
+        type: mongoose.Schema.ObjectId,
+        ref: "Category",
         required: [true, "Category is required."]
     },
     description: {
