@@ -1,6 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 
-
+import { User } from "./user.model";
 // const productSchema =  new Schema({
 //     name: {
 //       type: String,

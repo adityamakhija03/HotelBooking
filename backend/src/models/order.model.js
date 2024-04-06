@@ -1,109 +1,161 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose,{Schema} from "mongoose"
 
-const orderSchema =  new Schema({
-    
-    shippingInfo: {
-      address: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-  
-      state: {
-        type: String,
-        required: true,
-      },
-  
-      country: {
-        type: String,
-        required: true,
-      },
-      pinCode: {
-        type: Number,
-        required: true,
-      },
-      phoneNo: {
-        type: Number,
-        required: true,
-      },
+const orderSchema = new Schema({
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+        required: [true, "User Id is required."],
+        immutable: true
     },
     orderItems: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        image: {
-          type: String,
-          required: true,
-        },
-        product: {
-          type: mongoose.Schema.ObjectId,
-          ref: "Product",
-          required: true,
-        },
-      },
+        {
+            Product: {
+                type: mongoose.Schema.ObjectId,
+                ref: "Product",
+                required: [true, "Product is required."],
+                immutable: true
+            },
+            
+            productName: {
+                type: String,
+                required: [true, "Product Name is required."]
+            },
+            images: {
+                public_id: {
+                    type: String,
+                    required: [true, "Image public id is required."]
+                },
+                url: {
+                    type: String,
+                    required: [true, "Image public url is required."]
+                },
+            },
+            price: {
+                type: Number,
+                required: [true, "Price is required."],
+                validator(value) {
+                    if (value < 0) {
+                        throw new Error("Price should not be negative");
+                    }
+                }
+            },
+            discount: {
+                type: Number,
+                required: [true, "Discount is required."],
+                validator(value) {
+                    if (value < 0 && value > 100) {
+                        throw new Error("Discount must be greater then 0 and smaller then 100");
+                    }
+                }
+            },
+            quantity: {
+                type: Number,
+                required: [true, "Quantity is required."],
+            },
+            orderStatus: {
+                status: String,
+                message: String,
+                statusAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            },
+        }
     ],
-    user: {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: true,
+    shippingInfo: {
+        name: {
+            type: String,
+            required: [true, "Person Name in address is required"]
+        },
+        phone: {
+            type: String,
+            required: [true, "Phone number is required"],
+            validate(phone) {
+                if (!validator.isMobilePhone(phone, 'en-IN')) {
+                    throw new Error("Invalid Phone");
+                }
+            }
+        },
+        pinCode: {
+            type: String,
+            required: [true, "Pin Code is required"],
+            validate(pinCode) {
+                if (!validator.isPostalCode(pinCode, 'IN')) {
+                    throw new Error("Invalid Pin Code");
+                }
+            }
+        },
+        address: {
+            type: String,
+            required: [true, "Address Filed is required"]
+        },
+        landmark: {
+            type: String,
+        },
+        city: {
+            type: String,
+            required: [true, "City is required"]
+        },
+        state: {
+            type: String,
+            required: [true, "State is required"]
+        },
     },
-    paymentInfo: {
-      id: {
-        type: String,
+    pricing: {
+        totalPriceWithoutDiscount: {
+            type: Number,
+            required: [true, "totalPriceWithoutDiscount price is required."],
+        },
+        actualPriceAfterDiscount: {
+            type: Number,
+            required: [true, "totalPriceWithoutDiscount price is required."],
+        },
+        discountPrice: {
+            type: Number,
+            required: [true, "discountPrice price is required."],
+        },
+        deliveryPrice: {
+            type: Number,
+            required: [true, "Delivery price is required."],
+        },
+        totalPrice: {
+            type: Number,
+            required: [true, "Total Price is required."]
+        },
+    },
+    orderAt: {
+        type: Date,
+        default: Date.now,
         required: true,
-      },
-      status: {
-        type: String,
-        required: true,
-      },
     },
-    paidAt: {
-      type: Date,
-      required: true,
+    payment: {
+        paymentId: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        status: {
+            type: String,
+            required: true,
+            default: "pending"
+        },
+        message: {
+            type: String,
+            default: "Waiting for payment confirmation!"
+        },
+        paymentMethods: {
+            type: String,
+            required: true,
+        }
     },
-    itemsPrice: {
-      type: Number,
-      required: true,
-      default: 0,
+    delivery: {
+        delivery: {
+            type: mongoose.Schema.ObjectId,
+            ref: "delivery",
+        },
+        deliveryPersonName: String,
+        deliveredAt: Date,
     },
-    taxPrice: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    shippingPrice: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    totalPrice: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    orderStatus: {
-      type: String,
-      required: true,
-      default: "Processing",
-    },
-    deliveredAt: Date,
-   
-  },{
-    timestamps:true
-  });
-  
-  export const Order = mongoose.model("Order", orderSchema)
-//   module.exports = mongoose.model("Order", orderSchema);
+});
+
+export const Order = new mongoose.model('Order', orderSchema);
