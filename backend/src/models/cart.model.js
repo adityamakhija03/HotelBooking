@@ -1,4 +1,5 @@
 import mongoose,{Schema} from "mongoose"
+import validator from "validator";
 
 const cartSchema = new Schema({
         user: {
