@@ -8,8 +8,11 @@ export{
 
 const router = Router()
 
-router.route("/createSeller").post(createSeller);
-router.route("/getSellerById").get(getSellerById);
-router.route("/updateSeller").patch(updateSeller);   //instead of using patch we cn use put but put will entirely change and patch changes partially
-router.route("/deleteSeller").delete(deleteSeller);
+router.route("/Sellers").post(createSeller)
+    .delete(deleteSeller)
+    .patch(updateSeller);
+router.route("/Seller/:id").get(getSellerById);
+// router.route("/updateSeller").patch(updateSeller);   //instead of using patch we cn use put but put will entirely change and patch changes partially
+// router.route("/deleteSeller").delete(deleteSeller);
+
 export default router 
