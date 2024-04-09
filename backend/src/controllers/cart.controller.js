@@ -1,65 +1,128 @@
 import { Cart } from '../models/cart.model.js';
 
-// Controller to add item to cart
- const addToCart = async (req, res) => {
+export const addToCart = async (req, res, next) => {
     try {
-        const { user, product, quantity, pricing } = req.body;
-        const cartItem = new Cart({
-            user,
-            product,
-            quantity,
-            pricing
-        });
-        const savedCartItem = await cartItem.save();
-        res.status(201).json(savedCartItem);
+        const newCartItem = new Cart(req.body);
+        const result = await newCartItem.save().then(t => t.populate(["product", "user"])).then(t => t);
+
+        const info = {
+            status: true,
+            message: "Product added to cart",
+            result
+        };
+
+        res.status(200).send(info);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 
-// Controller to get all items in the cart for a specific user
- const getCartItems = async (req, res) => {
+export const getCartItems = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        const cartItems = await Cart.find({ user: userId });
-        res.status(200).json(cartItems);
+        const userId = req.user; // Assuming user information is available in the request
+        const result = await Cart.find({ user: userId }).populate('product', '_id productName price discount stock images');
+
+        if (!result || result.length === 0) {
+            const error = new Error("No Results Found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const info = {
+            status: true,
+            message: "List of cart items.",
+            result
+        };
+
+        res.status(200).send(info);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Controller to remove an item from the cart
- const removeFromCart = async (req, res) => {
+export const getCartItemById = async (req, res, next) => {
     try {
-        const itemId = req.params.itemId;
-        await Cart.findByIdAndRemove(itemId);
-        res.status(200).json({ message: 'Item removed from cart successfully.' });
+        const cartItemId = req.params.id;
+        const result = await Cart.findOne({ _id: cartItemId }).populate('product', '_id productName price discount stock images');
+
+        if (!result) {
+            const error = new Error("No Results Found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const info = {
+            status: true,
+            message: "Cart item retrieved successfully",
+            result
+        };
+
+        res.status(200).send(info);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Controller to update the quantity of an item in the cart
- const updateCartItemQuantity = async (req, res) => {
+export const updateCartItemById = async (req, res, next) => {
     try {
-        const itemId = req.params.itemId;
-        const { quantity } = req.body;
-        const updatedCartItem = await Cart.findByIdAndUpdate(itemId, { quantity }, { new: true });
-        res.status(200).json(updatedCartItem);
+        const cartItemId = req.params.id;
+        const updatedCartItem = await Cart.findByIdAndUpdate(cartItemId, req.body, { new: true }).populate('product', '_id productName price discount stock images');
+
+        if (!updatedCartItem) {
+            const error = new Error("No Results Found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const info = {
+            status: true,
+            message: "Cart item updated successfully",
+            result: updatedCartItem
+        };
+
+        res.status(200).send(info);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Controller to clear all items from the cart for a specific user
- const clearCart = async (req, res) => {
+export const deleteCartItemById = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        await Cart.deleteMany({ user: userId });
-        res.status(200).json({ message: 'Cart cleared successfully.' });
+        const cartItemId = req.params.id;
+        const deletedCartItem = await Cart.findByIdAndDelete(cartItemId);
+
+        if (!deletedCartItem) {
+            const error = new Error("No Results Found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const info = {
+            status: true,
+            message: "Cart item deleted successfully",
+            result: deletedCartItem
+        };
+
+        res.status(200).send(info);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-export {clearCart,updateCartItemQuantity,removeFromCart,getCartItems,addToCart}
+export const isProductAddedToCart = async (req, res, next) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.user; // Assuming user information is available in the request
+        const result = await Cart.findOne({ user: userId, product: productId });
+
+        const info = {
+            status: !!result, // Convert result to boolean
+            message: result ? "Product is in the cart." : "Product is not in the cart.",
+            result
+        };
+
+        res.status(200).send(info);
+    } catch (error) {
+        next(error);
+    }
+};
