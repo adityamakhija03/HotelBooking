@@ -10,7 +10,7 @@ const getAllProducts = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-
+  
 // Get a single product by ID
 const getProductById = async (req, res) => {
     try {

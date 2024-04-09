@@ -1,6 +1,6 @@
 import { Cart } from '../models/cart.model.js';
 
-export const addToCart = async (req, res, next) => {
+ const addToCart = async (req, res, next) => {
     try {
         const newCartItem = new Cart(req.body);
         const result = await newCartItem.save().then(t => t.populate(["product", "user"])).then(t => t);
@@ -17,7 +17,7 @@ export const addToCart = async (req, res, next) => {
     }
 };
 
-export const getCartItems = async (req, res, next) => {
+ const getCartItems = async (req, res, next) => {
     try {
         const userId = req.user; // Assuming user information is available in the request
         const result = await Cart.find({ user: userId }).populate('product', '_id productName price discount stock images');
@@ -40,7 +40,7 @@ export const getCartItems = async (req, res, next) => {
     }
 };
 
-export const getCartItemById = async (req, res, next) => {
+ const getCartItemById = async (req, res, next) => {
     try {
         const cartItemId = req.params.id;
         const result = await Cart.findOne({ _id: cartItemId }).populate('product', '_id productName price discount stock images');
@@ -63,7 +63,7 @@ export const getCartItemById = async (req, res, next) => {
     }
 };
 
-export const updateCartItemById = async (req, res, next) => {
+ const updateCartItemById = async (req, res, next) => {
     try {
         const cartItemId = req.params.id;
         const updatedCartItem = await Cart.findByIdAndUpdate(cartItemId, req.body, { new: true }).populate('product', '_id productName price discount stock images');
@@ -86,7 +86,7 @@ export const updateCartItemById = async (req, res, next) => {
     }
 };
 
-export const deleteCartItemById = async (req, res, next) => {
+ const deleteCartItemById = async (req, res, next) => {
     try {
         const cartItemId = req.params.id;
         const deletedCartItem = await Cart.findByIdAndDelete(cartItemId);
@@ -109,7 +109,7 @@ export const deleteCartItemById = async (req, res, next) => {
     }
 };
 
-export const isProductAddedToCart = async (req, res, next) => {
+ const isProductAddedToCart = async (req, res, next) => {
     try {
         const productId = req.params.productId;
         const userId = req.user; // Assuming user information is available in the request
@@ -126,3 +126,5 @@ export const isProductAddedToCart = async (req, res, next) => {
         next(error);
     }
 };
+
+export {addToCart,isProductAddedToCart,deleteCartItemById,updateCartItemById,getCartItemById,getCartItems} 
