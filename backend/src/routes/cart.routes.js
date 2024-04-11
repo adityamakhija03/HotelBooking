@@ -16,7 +16,7 @@ router.route('/carts/:id')
     .patch(updateCartItemById)
     .delete(deleteCartItemById);
 
-router.route('/isPlantsAddedToCart/:plantId')
+router.route('/isProductsAddedToCart/:productId')
     .get(isProductAddedToCart);
     
 
