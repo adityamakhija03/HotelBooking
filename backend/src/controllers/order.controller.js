@@ -108,7 +108,25 @@ const GetOrderHistory = asyncHandler(async(res,req) => {
         if (!paymentId || !status || status !== 'succeeded') {
             throw new ApiError(403,"You are not allowed to access this route");
         }
-        const result = awaitOrder.findOneAndUpdate(
+        // const result = awaitOrder.findOneAndUpdate(
+        //     { "payment.paymentId": paymentId, user: req.user },
+        //     {
+        //         $set: {
+        //             "payment.status": status,
+        //             "payment.message": "Payment Succeeded"
+        //         }
+        //     },
+        //     {
+        //         new: true,
+        //         session
+        //     }
+        // ).select('-payment.paymentId -delivery');
+
+        // if (!result) {
+        //     throw new ApiError(404, "Order not found or payment details not updated);
+        // }
+
+        const result = await Order.findOneAndUpdate(
             { "payment.paymentId": paymentId, user: req.user },
             {
                 $set: {
@@ -121,10 +139,13 @@ const GetOrderHistory = asyncHandler(async(res,req) => {
                 session
             }
         ).select('-payment.paymentId -delivery');
-
+        
         if (!result) {
-            throw new ApiError()
+            throw new ApiError(404, "Order not found or payment details not updated");
         }
+        
+
+
 
         const deleteCartPromises = result.orderItems.map(async (items) => {
             const deleteCartInfo = await Cart.findOneAndDelete(
