@@ -1,10 +1,10 @@
-import express from 'express';
+import {Router} from 'express';
 import { addAddress, getAddressList, getAddressById, updateAddress, deleteAddress, getDefaultAddress } from '../controllers/address.contoller.js';
-import auth from '../middlewares/auth.middleware.js';
+import {Auth} from '../middlewares/auth.middleware.js';
 
-const router = express.Router();
+const router = Router();
 
-router.use(auth);
+router.use(Auth);
 
 router.route('/address')
     .post(addAddress)
