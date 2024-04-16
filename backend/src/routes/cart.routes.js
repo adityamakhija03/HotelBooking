@@ -1,6 +1,4 @@
 import {Router} from "express";
-
-
 import {addToCart,isProductAddedToCart,deleteCartItemById,updateCartItemById,getCartItemById,getCartItems} from "../controllers/cart.controller.js"
 
 
