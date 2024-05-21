@@ -27,7 +27,6 @@ const createOrderSession = asyncHandler(async (req, res) => {
         await kv.json.del(`${process.env.REDIS_VERCEL_KV_DB}:${userId}:${token}:payment`);
 
         
-
         // Set cookie with JWT token
         res.cookie('orderSession', token, {
             expires: new Date(Date.now() + 1000 * 60 * 30), // 30 minutes
